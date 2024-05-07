@@ -1,12 +1,14 @@
-ARG UBUNTU_VERSION=18.04
-ARG CUDA_VERSION=10.2
+ARG UBUNTU_VERSION=20.04
+ARG CUDA_VERSION=12.4.1
 ARG IMAGE_DIGEST=ed4b2e8703ed3f94029ce0823c44fe57b2800108953cf81f97781d6a2a5535fc
 
-FROM nvidia/cuda:${CUDA_VERSION}-base-ubuntu${UBUNTU_VERSION}@sha256:${IMAGE_DIGEST}
+FROM nvidia/cuda:${CUDA_VERSION}-base-ubuntu${UBUNTU_VERSION}
 
 ARG MINICONDA_VERSION=4.9.2
 ARG CONDA_PY_VERSION=39
-ARG CONDA_CHECKSUM="b4e46fcc8029e2cfa731b788f25b1d36"
+
+# ARG CONDA_CHECKSUM="b4e46fcc8029e2cfa731b788f25b1d36"
+ARG CONDA_CHECKSUM="af1c16d821569ebf1bdaf549fcba7d27"
 ARG CONDA_PKG_VERSION=4.10.1
 ARG PYTHON_VERSION=3.8.13
 ARG PYARROW_VERSION=14.0.1
@@ -44,8 +46,8 @@ RUN rm /etc/apt/sources.list.d/cuda.list && \
     # MLIO build dependencies
     # Official Ubuntu APT repositories do not contain an up-to-date version of CMake required to build MLIO.
     # Kitware contains the latest version of CMake.
-    wget http://es.archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb && \
-    dpkg -i libffi7_3.3-4_amd64.deb && \
+    wget http://ports.ubuntu.com/pool/universe/libf/libffi7/libffi7_3.3-5ubuntu1_arm64.deb && \
+    dpkg -i libffi7_3.3-5ubuntu1_arm64.deb && \
     apt-get -y install --no-install-recommends \
         apt-transport-https \
         ca-certificates \
@@ -62,8 +64,8 @@ RUN rm /etc/apt/sources.list.d/cuda.list && \
         autoconf \
         automake \
         build-essential \
-        cmake=3.18.4-0kitware1 \
-        cmake-data=3.18.4-0kitware1 \
+        cmake \
+        cmake-data \
         doxygen \
         kitware-archive-keyring \
         libcurl4-openssl-dev \
@@ -79,7 +81,8 @@ RUN rm /etc/apt/sources.list.d/cuda.list && \
 
 # Install conda
 RUN cd /tmp && \
-    curl -L --output /tmp/Miniconda3.sh https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-Linux-x86_64.sh && \
+    curl -L --output /tmp/Miniconda3.sh \
+    https://repo.anaconda.com/miniconda/Miniconda3-py${CONDA_PY_VERSION}_${MINICONDA_VERSION}-Linux-aarch64.sh && \
     echo "${CONDA_CHECKSUM} /tmp/Miniconda3.sh" | md5sum -c - && \
     bash /tmp/Miniconda3.sh -bfp /miniconda3 && \
     rm /tmp/Miniconda3.sh
